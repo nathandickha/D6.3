@@ -139,3 +139,12 @@ url("../images/infinity-edge.jpg") center/cover no-repeat;display:flex;align-ite
  .instruction-grid{grid-template-columns:1fr}
  .studio-overlay-card{grid-template-columns:repeat(2,auto)}
 }
+
+/* Homepage hero alignment and full-bleed header overlay */
+.home-page .site-header{position:absolute;inset:0 0 auto 0;z-index:20;color:#fff;background:transparent}
+.home-page .main-nav{color:#fff}
+.home-page .brand-dot{background:#fff}
+.home-page .hero{min-height:850px;padding-top:78px}
+.home-page .hero-inner{width:min(var(--max),calc(100% - 44px));max-width:none;margin:0 auto;padding:90px 0}
+.home-page .hero-copy{max-width:690px;margin:0}
+@media(max-width:760px){.home-page .site-header{color:#fff}.home-page .main-nav{color:var(--ink);background:#fff}.home-page .brand-dot{background:#fff}.home-page .hero{min-height:760px;padding-top:64px}.home-page .hero-inner{width:min(100% - 30px,var(--max));padding:78px 0 60px}.home-page .hero-copy{max-width:100%}}
