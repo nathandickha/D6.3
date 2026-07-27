@@ -148,3 +148,70 @@ url("../images/infinity-edge.jpg") center/cover no-repeat;display:flex;align-ite
 .home-page .hero-inner{width:min(var(--max),calc(100% - 44px));max-width:none;margin:0 auto;padding:90px 0}
 .home-page .hero-copy{max-width:690px;margin:0}
 @media(max-width:760px){.home-page .site-header{color:#fff}.home-page .main-nav{color:var(--ink);background:#fff}.home-page .brand-dot{background:#fff}.home-page .hero{min-height:760px;padding-top:64px}.home-page .hero-inner{width:min(100% - 30px,var(--max));padding:78px 0 60px}.home-page .hero-copy{max-width:100%}}
+
+
+/* Persistent translucent navigation ribbon */
+.site-header{
+  position:fixed;
+  top:0;
+  right:0;
+  left:0;
+  z-index:1000;
+  width:100%;
+  background:rgba(255,255,255,.96);
+  border-bottom:1px solid transparent;
+  transition:
+    background-color .22s ease,
+    border-color .22s ease,
+    box-shadow .22s ease,
+    color .22s ease,
+    backdrop-filter .22s ease;
+}
+body:not(.home-page){
+  padding-top:78px;
+}
+.site-header.is-scrolled{
+  background:rgba(255,255,255,.82);
+  border-bottom-color:rgba(20,20,20,.10);
+  box-shadow:0 8px 28px rgba(20,20,20,.08);
+  -webkit-backdrop-filter:blur(16px) saturate(150%);
+  backdrop-filter:blur(16px) saturate(150%);
+  color:var(--ink);
+}
+.site-header.is-scrolled .main-nav{
+  color:#373737;
+}
+.site-header.is-scrolled .brand-dot{
+  background:var(--blue);
+}
+
+/* The homepage begins with the photograph behind the navigation. */
+.home-page .site-header{
+  position:fixed;
+}
+.home-page .site-header:not(.is-scrolled){
+  background:transparent;
+  border-bottom-color:transparent;
+  box-shadow:none;
+  color:#fff;
+  -webkit-backdrop-filter:none;
+  backdrop-filter:none;
+}
+.home-page .site-header:not(.is-scrolled) .main-nav{
+  color:#fff;
+}
+.home-page .site-header:not(.is-scrolled) .brand-dot{
+  background:#fff;
+}
+@media(max-width:760px){
+  body:not(.home-page){
+    padding-top:64px;
+  }
+  .site-header.is-scrolled .main-nav,
+  .home-page .site-header:not(.is-scrolled) .main-nav{
+    color:var(--ink);
+    background:rgba(255,255,255,.97);
+    -webkit-backdrop-filter:blur(16px);
+    backdrop-filter:blur(16px);
+  }
+}
