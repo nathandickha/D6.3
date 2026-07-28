@@ -2462,27 +2462,58 @@ function offsetPolygon(points, distance) {
 
 function makePavingMaterial() {
   if (cachedPavingMaterial) return cachedPavingMaterial;
-  const loader = new THREE.TextureLoader();
-  const load = (name, colorSpace = null) => {
-    const t = loader.load(new URL(`../textures/Coping/${name}`, import.meta.url).href);
-    t.wrapS = t.wrapT = THREE.RepeatWrapping;
-    t.anisotropy = 8;
-    if (colorSpace) t.colorSpace = colorSpace;
-    return t;
-  };
-  const color = load('StoneEmbeddedTiles_DIFF_2K.webp', THREE.SRGBColorSpace);
-  const normal = load('StoneEmbeddedTiles_NORMAL_2K.webp');
-  const ao = load('StoneEmbeddedTiles_AO_2K.webp');
-  const roughness = load('StoneEmbeddedTiles_ROUGH_2K.webp');
+
+  // Create a visible stone material synchronously. A TextureLoader texture can
+  // render black until its image reaches the GPU, so maps are attached only
+  // after each image has finished loading.
   cachedPavingMaterial = new THREE.MeshStandardMaterial({
-    map: color,
-    normalMap: normal,
-    aoMap: ao,
-    roughnessMap: roughness,
+    color: 0xbab3a8,
     roughness: 0.88,
     metalness: 0.0,
     envMapIntensity: 0.65
   });
+
+  const loader = new THREE.TextureLoader();
+  const configureTexture = (texture, colorSpace = null) => {
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.anisotropy = 8;
+    texture.generateMipmaps = true;
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+    if (colorSpace) texture.colorSpace = colorSpace;
+    texture.needsUpdate = true;
+    return texture;
+  };
+
+  const loadAndAssign = (name, materialSlot, colorSpace = null) => {
+    const url = new URL(`../textures/Coping/${name}`, import.meta.url).href;
+    loader.load(
+      url,
+      (texture) => {
+        configureTexture(texture, colorSpace);
+        cachedPavingMaterial[materialSlot] = texture;
+
+        // Once the diffuse texture arrives, use white as the multiplier so the
+        // original stone colour is shown accurately.
+        if (materialSlot === 'map') {
+          cachedPavingMaterial.color.set(0xffffff);
+        }
+
+        cachedPavingMaterial.needsUpdate = true;
+      },
+      undefined,
+      (error) => {
+        console.warn(`[Paving] Failed to load ${name}; retaining fallback material.`, error);
+      }
+    );
+  };
+
+  // Prioritise the visible diffuse map. Supporting PBR maps load without
+  // delaying the first frame or causing a black placeholder.
+  loadAndAssign('StoneEmbeddedTiles_DIFF_2K.webp', 'map', THREE.SRGBColorSpace);
+  loadAndAssign('StoneEmbeddedTiles_NORMAL_2K.webp', 'normalMap');
+  loadAndAssign('StoneEmbeddedTiles_ROUGH_2K.webp', 'roughnessMap');
+  loadAndAssign('StoneEmbeddedTiles_AO_2K.webp', 'aoMap');
 
   // The spa can overlap the paving ring. Clip the paving in the material rather
   // than adding an overlapping ShapeGeometry hole, which becomes invalid when
